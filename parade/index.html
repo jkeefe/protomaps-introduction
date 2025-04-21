@@ -1,0 +1,84 @@
+<html>
+
+<head>
+    <title>Protomaps - Parade</title>
+    <meta charset="utf-8" />
+    <script src="https://unpkg.com/maplibre-gl@^5.2.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@^5.2.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/pmtiles@4.2.1/dist/pmtiles.js"></script>
+    <script src="https://unpkg.com/@protomaps/basemaps@5.0.0/dist/basemaps.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- This div is where the map gets drawn! -->
+    <div id="map"></div>
+
+    <script type="text/javascript">
+        let protocol = new pmtiles.Protocol();
+        maplibregl.addProtocol("pmtiles", protocol.tile);
+
+        // This is where we build the map
+        const map = new maplibregl.Map({
+            container: "map",
+            zoom: 10,
+            center: [-73.96, 40.70],
+            style: {
+                version: 8,
+                glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+                sprite: `https://protomaps.github.io/basemaps-assets/sprites/v4/light`,
+                sources: {
+                    basemap: {
+                        type: "vector",
+                        url: "pmtiles://./basemap-nyc.pmtiles",
+                        attribution: "<a href='https://protomaps.com'>Protomaps</a> <a href='https://openstreetmap.org/copyright'>© OpenStreetMap Contributors</a>"
+                    },
+                    other_source: {
+                        type: "geojson",
+                        data: "./parade.json"
+                    }
+                },
+                layers: [
+                    ...basemaps.layers("basemap", basemaps.namedFlavor("white"), { lang: "en" }),
+                    {
+                        id: "other_layer",
+                        source: "other_source",
+                        type: "line",
+                        paint: {
+                            "line-color": "red",
+                            "line-width": 4,
+                            "line-dasharray": [2, 1]
+                        }
+                    },
+                ]
+            },
+        });
+
+        // map.addControl add zoom buttons to the map (and others if you want).
+        map.addControl(new maplibregl.NavigationControl({
+            showZoom: true,
+            showCompass: false
+        }));
+
+        // map.fitBounds pre-zooms the map to fit the latitude/longitude boundaries
+        // of the parade route. Points are the southwest and northeast corners.
+        // Helpful for resizing to maps of different sizes! (Mobile or desktop)
+        map.fitBounds([
+            [-73.9893449101245,
+                40.749794902874214],
+            [-73.97409920488721,
+                40.778823050358085]
+        ], { padding: 20 });
+    </script>
+</body>
+
+</html>
